@@ -1,9 +1,8 @@
 import akka.actor.Address
 import akka.actor.typed.javadsl.Behaviors
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Props}
-import akka.cluster.ClusterEvent
-import akka.cluster.ClusterEvent.{MemberLeft, MemberUp}
-import akka.cluster.typed.{Cluster, Join}
+import akka.cluster.ClusterEvent.{MemberEvent, MemberLeft, MemberUp}
+import akka.cluster.typed.{Cluster, Join, Subscribe}
 
 object Main extends App {
 
@@ -13,6 +12,7 @@ object Main extends App {
 
   val address = Address("tcp", "messageListener", "127.0.0.1", 2552)
 
+  val x = cluster.subscriptions
 
   cluster.manager ! Join(address)
 
@@ -29,7 +29,7 @@ object Main extends App {
 
 object ClusterListener {
 
-  def behavior: Behavior[MemberUp] = Behaviors.setup { ctx =>
+  def behavior: Behavior[MemberEvent] = Behaviors.setup { ctx =>
     Behaviors.receiveMessage {
       case MemberUp(member) => println("hello from" + member.address)
         Behaviors.same
