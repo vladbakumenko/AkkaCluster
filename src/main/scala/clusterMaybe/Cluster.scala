@@ -2,8 +2,11 @@ package clusterMaybe
 
 import akka.NotUsed
 import akka.actor.Address
-import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Terminated}
-import akka.actor.typed.pubsub.{PubSub, Topic}
+import akka.actor.typed.ActorSystem
+import akka.actor.typed.Behavior
+import akka.actor.typed.Terminated
+import akka.actor.typed.pubsub.PubSub
+import akka.actor.typed.pubsub.Topic
 import akka.actor.typed.scaladsl.Behaviors
 import akka.cluster.ClusterEvent.ClusterDomainEvent
 import akka.cluster.ClusterEvent.MemberUp
@@ -15,7 +18,7 @@ import akka.cluster.typed.Subscribe
 import scala.collection.mutable.ArrayBuffer
 import scala.io.StdIn.readLine
 
-case class GroupMessage(name: String)
+case class GroupMessage(value: String)
 
 object Main {
   def apply(): Behavior[NotUsed] =
@@ -39,7 +42,7 @@ object Main {
     cluster.manager ! Join(address)
 
     val pubSub = PubSub(system)
-    val topic = pubSub.topic[GroupMessage]("topic")
+    val topic  = pubSub.topic[GroupMessage]("topic")
     topic ! Topic.Subscribe(system.systemActorOf(Chat(cluster), "chat"))
 
     while (true) {
@@ -65,9 +68,9 @@ object Listener {
 }
 
 object Chat {
-  def apply(cluster: Cluster): Behavior[GroupMessage] = Behaviors.setup { context =>
+  def apply(): Behavior[GroupMessage] = Behaviors.setup { context =>
     Behaviors.receiveMessage { case m: GroupMessage =>
-      println("message ==> : " + m)
+      println("message ==> : " + m.value)
       Behaviors.same
     }
   }
