@@ -43,7 +43,7 @@ object Main {
 
     val pubSub = PubSub(system)
     val topic  = pubSub.topic[GroupMessage]("topic")
-    topic ! Topic.Subscribe(system.systemActorOf(Chat(cluster), "chat"))
+    topic ! Topic.Subscribe(system.systemActorOf(Chat(), "chat"))
 
     while (true) {
       val msg = readLine()
