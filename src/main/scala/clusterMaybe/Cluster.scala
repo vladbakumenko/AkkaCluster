@@ -2,9 +2,8 @@ package clusterMaybe
 
 import akka.NotUsed
 import akka.actor.Address
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.Behavior
-import akka.actor.typed.Terminated
+import akka.actor.typed.{ActorRef, ActorSystem, Behavior, Terminated}
+import akka.actor.typed.pubsub.{PubSub, Topic}
 import akka.actor.typed.scaladsl.Behaviors
 import akka.cluster.ClusterEvent.ClusterDomainEvent
 import akka.cluster.ClusterEvent.MemberUp
@@ -38,6 +37,15 @@ object Main {
     val address = Address("akka", "system", "127.0.0.1", port)
 
     cluster.manager ! Join(address)
+
+    val pubSub = PubSub(system)
+    val topic = pubSub.topic[GroupMessage]("topic")
+    topic ! Topic.Subscribe(system.systemActorOf(Chat(cluster), "chat"))
+
+    while (true) {
+      val msg = readLine()
+      topic ! Topic.Publish(GroupMessage(msg))
+    }
   }
 
 }
@@ -57,9 +65,9 @@ object Listener {
 }
 
 object Chat {
-  def apply(): Behavior[GroupMessage] = Behaviors.setup { context =>
+  def apply(cluster: Cluster): Behavior[GroupMessage] = Behaviors.setup { context =>
     Behaviors.receiveMessage { case m: GroupMessage =>
-      println(m)
+      println("message ==> : " + m)
       Behaviors.same
     }
   }

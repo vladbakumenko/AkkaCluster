@@ -19,7 +19,7 @@ dependencies {
 
     implementation group: 'org.scala-lang', name: 'scala-library', version: '2.13.12'
 
-    implementation platform("com.typesafe.akka:akka-bom_2.13:2.9.1")
+    implementation platform("com.typesafe.akka:akka-bom_2.13:2.9.2")
     implementation "com.typesafe.akka:akka-cluster-typed_2.13"
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
